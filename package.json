@@ -1,5 +1,5 @@
 {
-	"name": "fastify-authentication",
+	"name": "node-jwt",
 	"type": "module",
 	"version": "1.0.0",
 	"description": "",

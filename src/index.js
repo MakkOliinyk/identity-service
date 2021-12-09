@@ -13,7 +13,6 @@ const app = fastify({ logger: true });
 app.register(db, { uri });
 app.register(users);
 
-// create server
 const start = async () => {
 	try {
 		await app.listen(Port);
