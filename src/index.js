@@ -1,7 +1,8 @@
 import fastify from 'fastify';
+import env from 'dotenv';
+
 import db from './config/index';
 import users from './routes/users';
-import env from 'dotenv';
 
 env.config();
 

@@ -7,13 +7,13 @@ export default async (fastify) => {
 		.decorate('_verify', async (request, reply) => {
 			try {
 				if (!request.headers.authorization)
-					throw new Error('No token was sent');
+					throw new Error('Bad request: no token was sent');
 
 				const token = request.headers.authorization.replace('Bearer ', '');
 				const user = await User.findByToken(token);
 
 				if (!user)
-					throw new Error('Authentication failed!');
+					throw new Error('Authentication failed: token is expired or incorrect');
 
 				request.user = user;
 				request.token = token;
@@ -24,7 +24,7 @@ export default async (fastify) => {
 		.decorate('verifyCredentials', async (request, reply) => {
 			try {
 				if (!request.body)
-					throw new Error('username and Password is required!');
+					throw new Error('Authentication failed: username and password are required');
 
 				request.user = await User.findByCredentials(request.body.email, request.body.password);
 			} catch (error) {
