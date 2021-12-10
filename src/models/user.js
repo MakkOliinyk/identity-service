@@ -56,7 +56,7 @@ userSchema.statics.findByToken = async function(token) {
 
 	try {
 		if (!token) {
-			return new Error('Missing token header');
+			return new Error('Bad request: missing token header');
 		}
 
 		decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -77,9 +77,9 @@ userSchema.statics.findByCredentials = async (email, password) => {
 		throw new Error('Unable to login: wrong email');
 	}
 
-	const isMatch = await bcrypt.compare(password, user.password);
+	const isPasswordMatching = await bcrypt.compare(password, user.password);
 
-	if (!isMatch) {
+	if (!isPasswordMatching) {
 		throw new Error('Unable to login: wrong password');
 	}
 
