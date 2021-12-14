@@ -7,7 +7,6 @@ import users from './routes/users';
 
 env.config();
 
-const Port = process.env.PORT;
 const uri = process.env.MONGODB_URI;
 
 const app = fastify({ logger: true });
@@ -21,7 +20,7 @@ app.register(cookie, {
 
 const start = async () => {
     try {
-        await app.listen(Port);
+        await app.listen(process.env.PORT || 5000);
     } catch (err) {
         app.log.error(err);
         process.exit(1);
