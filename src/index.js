@@ -1,4 +1,5 @@
 import fastify from 'fastify';
+import cookie from 'fastify-cookie';
 import env from 'dotenv';
 
 import db from './config/index';
@@ -13,6 +14,10 @@ const app = fastify({ logger: true });
 
 app.register(db, { uri });
 app.register(users);
+app.register(cookie, {
+	secret: process.env.COOKIE_SECRET,
+	parseOptions: {}
+});
 
 const start = async () => {
 	try {

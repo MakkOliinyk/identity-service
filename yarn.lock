@@ -299,6 +299,11 @@ configstore@^5.0.1:
     write-file-atomic "^3.0.0"
     xdg-basedir "^4.0.0"
 
+cookie-signature@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/cookie-signature/-/cookie-signature-1.1.0.tgz#cc94974f91fb9a9c1bb485e95fc2b7f4b120aff2"
+  integrity sha512-Alvs19Vgq07eunykd3Xy2jF0/qSNv2u7KDbAek9H5liV1UMijbqFs5cycZvv5dVsvseT/U4H8/7/w8Koh35C4A==
+
 cookie@^0.4.0:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/cookie/-/cookie-0.4.1.tgz#afd713fe26ebd21ba95ceb61f9a8116e50a537d1"
@@ -445,6 +450,14 @@ fastify-auth@^1.1.0:
   dependencies:
     fastify-plugin "^3.0.0"
     reusify "^1.0.4"
+
+fastify-cookie@^5.4.0:
+  version "5.4.0"
+  resolved "https://registry.yarnpkg.com/fastify-cookie/-/fastify-cookie-5.4.0.tgz#2648b64a9f4090c783369b86f5862b1cc501fec3"
+  integrity sha512-uKTbOLx6pSyKqA9oD2G9hpMuRTVtKRm98bRwJVg4ga7GCm+RR6771stmfhbblXxHHcQQHuHvwdOdPeHJjr2sgg==
+  dependencies:
+    cookie-signature "^1.1.0"
+    fastify-plugin "^3.0.0"
 
 fastify-error@^0.3.0:
   version "0.3.1"

@@ -6,14 +6,13 @@ export default async (fastify) => {
 	fastify
 		.decorate('_verify', async (request, reply) => {
 			try {
-				if (!request.headers.authorization)
-					throw new Error('Bad request: no token was sent');
+				const token = request.cookies.token;
 
-				const token = request.headers.authorization.replace('Bearer ', '');
+				if (!token) throw new Error('Bad request: no token was sent');
+
 				const user = await User.findByToken(token);
 
-				if (!user)
-					throw new Error('Authentication failed: token is expired or incorrect');
+				if (!user) throw new Error('Authentication failed: token is expired or incorrect');
 
 				request.user = user;
 				request.token = token;
@@ -42,8 +41,9 @@ export default async (fastify) => {
 
 					try {
 						await user.save();
-						await user.generateToken();
+						const token = await user.generateToken();
 
+						reply.cookie('token', token);
 						reply.status(201).send({ user });
 					} catch (error) {
 						reply.status(400).send(error);
@@ -56,7 +56,9 @@ export default async (fastify) => {
 				logLevel: 'warn',
 				preHandler: fastify.auth([ fastify.verifyCredentials ]),
 				handler: async (req, reply) => {
-					await req.user.generateToken();
+					const token = await req.user.generateToken();
+
+					reply.cookie('token', token);
 					reply.send({ status: 'You are logged in', user: req.user });
 				}
 			});
@@ -81,6 +83,7 @@ export default async (fastify) => {
 						});
 						const loggedOutUser = await req.user.save();
 
+						reply.clearCookie('token');
 						reply.send({ status: 'You are logged out!', user: loggedOutUser });
 					} catch (e) {
 						res.status(500).send();
