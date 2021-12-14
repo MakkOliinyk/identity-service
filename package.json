@@ -5,8 +5,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node --es-module-specifier-resolution=node ./src/index.js",
-    "dev": "nodemon --es-module-specifier-resolution=node ./src/index.js"
+    "start": "node --es-module-specifier-resolution=node ./api/index.js",
+    "dev": "nodemon --es-module-specifier-resolution=node ./api/index.js"
   },
   "keywords": [],
   "author": "",
