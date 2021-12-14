@@ -15,17 +15,17 @@ const app = fastify({ logger: true });
 app.register(db, { uri });
 app.register(users);
 app.register(cookie, {
-	secret: process.env.COOKIE_SECRET,
-	parseOptions: {}
+    secret: process.env.COOKIE_SECRET,
+    parseOptions: {}
 });
 
 const start = async () => {
-	try {
-		await app.listen(Port);
-	} catch (err) {
-		app.log.error(err);
-		process.exit(1);
-	}
+    try {
+        await app.listen(Port);
+    } catch (err) {
+        app.log.error(err);
+        process.exit(1);
+    }
 };
 
 start();
