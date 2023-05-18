@@ -28,6 +28,7 @@ const userSchema = new mongoose.Schema({
 userSchema.pre('save', async function(next) {
     const user = this;
 
+    // add salt (random string)
     if (user.isModified('password')) {
         user.password = await bcrypt.hash(user.password, 8);
     }
@@ -77,6 +78,7 @@ userSchema.statics.findByCredentials = async (email, password) => {
         throw new Error('Unable to login: wrong email');
     }
 
+    // add salt concat
     const isPasswordMatching = await bcrypt.compare(password, user.password);
 
     if (!isPasswordMatching) {
