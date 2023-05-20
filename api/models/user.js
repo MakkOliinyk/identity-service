@@ -3,9 +3,9 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 const userSchema = new mongoose.Schema({
-    username: {
+    id: {
         type: String,
-        required: true
+        required: true,
     },
     email: {
         type: String,
@@ -48,7 +48,7 @@ userSchema.methods.generateToken = async function() {
     const token = jwt.sign(
         { _id: user._id.toString() },
         process.env.JWT_SECRET,
-        { expiresIn: '72h' }
+        { expiresIn: '240h' }
     );
 
     user.tokens = user.tokens.concat({ token });
@@ -62,9 +62,7 @@ userSchema.statics.findByToken = async function(token) {
     let decoded;
 
     try {
-        if (!token) {
-            return new Error('Bad request: missing token header');
-        }
+        if (!token) return new Error('Error: missing token header');
 
         decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (error) {
@@ -79,10 +77,7 @@ userSchema.statics.findByToken = async function(token) {
 
 userSchema.statics.findByCredentials = async (email, password) => {
     const user = await User.findOne({ email });
-
-    if (!user) {
-        throw new Error('Unable to login: wrong email');
-    }
+    if (!user) throw new Error('Error: Unable to login (wrong email)');
 
     const isPasswordMatching = await bcrypt.compare(password.concat(user.salt), user.password);
     if (!isPasswordMatching) throw new Error('Error: Unable to login (wrong password)');

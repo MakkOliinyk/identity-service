@@ -7,11 +7,9 @@ export default async (fastify) => {
         .decorate('_verify', async (request, reply) => {
             try {
                 const token = request.cookies.token;
-
                 if (!token) throw new Error('Bad request: no token was sent');
 
                 const user = await User.findByToken(token);
-
                 if (!user) throw new Error('Authentication failed: token is expired or incorrect');
 
                 request.user = user;
@@ -22,8 +20,7 @@ export default async (fastify) => {
         })
         .decorate('verifyCredentials', async (request, reply) => {
             try {
-                if (!request.body)
-                    throw new Error('Authentication failed: username and password are required');
+                if (!request.body) throw new Error('Authentication failed: username and password are required');
 
                 request.user = await User.findByCredentials(request.body.email, request.body.password);
             } catch (error) {
@@ -59,16 +56,16 @@ export default async (fastify) => {
                     const token = await req.user.generateToken();
 
                     reply.cookie('token', token);
-                    reply.send({ status: 'You are logged in', user: req.user });
+                    reply.send({ status: 'Success: logged in', user: req.user });
                 }
             });
             fastify.route({
                 method: ['GET', 'HEAD'],
-                url: '/profile',
+                url: '/me',
                 logLevel: 'warn',
                 preHandler: fastify.auth([ fastify._verify ]),
                 handler: async (req, reply) => {
-                    reply.send({ status: 'Authenticated', user: req.user });
+                    reply.send({ status: 'Success: authenticated', user: req.user });
                 }
             });
             fastify.route({
@@ -78,9 +75,7 @@ export default async (fastify) => {
                 preHandler: fastify.auth([ fastify._verify ]),
                 handler: async (req, reply) => {
                     try {
-                        req.user.tokens = req.user.tokens.filter((token) => {
-                            return token.token !== req.token;
-                        });
+                        req.user.tokens = req.user.tokens.filter((token) => token.token !== req.token);
                         const loggedOutUser = await req.user.save();
 
                         reply.clearCookie('token');
