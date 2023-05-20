@@ -15,6 +15,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    salt: {
+        type: String,
+        required: true
+    },
     tokens: [
         {
             token: {
@@ -28,9 +32,11 @@ const userSchema = new mongoose.Schema({
 userSchema.pre('save', async function(next) {
     const user = this;
 
-    // add salt (random string)
     if (user.isModified('password')) {
-        user.password = await bcrypt.hash(user.password, 8);
+        const salt = await bcrypt.genSalt(32);
+
+        user.password = await bcrypt.hash(user.password.concat(salt), 8);
+        user.salt = salt;
     }
 
     next();
@@ -78,12 +84,8 @@ userSchema.statics.findByCredentials = async (email, password) => {
         throw new Error('Unable to login: wrong email');
     }
 
-    // add salt concat
-    const isPasswordMatching = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordMatching) {
-        throw new Error('Unable to login: wrong password');
-    }
+    const isPasswordMatching = await bcrypt.compare(password.concat(user.salt), user.password);
+    if (!isPasswordMatching) throw new Error('Error: Unable to login (wrong password)');
 
     return user;
 };
