@@ -4,13 +4,11 @@ const env = require('dotenv');
 const db = require('./config/dbconnector.js');
 const users = require('./routes/users');
 
-const { dbUri } = require('./config/secrets');
-
 env.config();
 
 const app = fastify({ logger: true });
 
-app.register(db, { uri: dbUri });
+app.register(db, { uri: process.env.DB_URI });
 app.register(users);
 
 const handler = async (req, res) => {
