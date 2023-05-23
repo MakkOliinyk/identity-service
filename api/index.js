@@ -1,30 +1,26 @@
-import fastify from 'fastify';
-import cookie from 'fastify-cookie';
-import env from 'dotenv';
+const fastify = require('fastify');
+const env = require('dotenv');
 
-import db from './config/index';
-import users from './routes/users';
+const db = require('./config/dbconnector.js');
+const users = require('./routes/users');
+
+const { dbUri } = require('./config/secrets');
 
 env.config();
 
-const uri = process.env.MONGODB_URI;
-
 const app = fastify({ logger: true });
 
-app.register(db, { uri });
+app.register(db, { uri: dbUri });
 app.register(users);
-app.register(cookie, {
-    secret: process.env.COOKIE_SECRET,
-    parseOptions: {}
-});
 
-const start = async () => {
+const handler = async (req, res) => {
     try {
-        await app.listen(process.env.PORT || 5000, '0.0.0.0');
+        await app.ready();
+        app.server.emit('request', req, res);
     } catch (err) {
-        app.log.error(err);
-        process.exit(1);
+        console.error(err);
+        res.sendStatus(500);
     }
 };
 
-start();
+exports.app = functions.https.onRequest(handler);

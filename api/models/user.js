@@ -1,6 +1,8 @@
-import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+const { JWT_SECRET } = require('../config/secrets');
 
 const userSchema = new mongoose.Schema({
     id: {
@@ -47,7 +49,7 @@ userSchema.methods.generateToken = async function() {
 
     const token = jwt.sign(
         { _id: user._id.toString() },
-        process.env.JWT_SECRET,
+        JWT_SECRET,
         { expiresIn: '240h' }
     );
 
@@ -57,6 +59,12 @@ userSchema.methods.generateToken = async function() {
     return token;
 };
 
+userSchema.methods.getToken = async function() {
+    const user = this;
+
+    return user.tokens[user.tokens.length - 1];
+};
+
 userSchema.statics.findByToken = async function(token) {
     const User = this;
     let decoded;
@@ -64,7 +72,7 @@ userSchema.statics.findByToken = async function(token) {
     try {
         if (!token) return new Error('Error: missing token header');
 
-        decoded = jwt.verify(token, process.env.JWT_SECRET);
+        decoded = jwt.verify(token, JWT_SECRET);
     } catch (error) {
         return error;
     }
@@ -87,4 +95,4 @@ userSchema.statics.findByCredentials = async (email, password) => {
 
 const User = mongoose.model('user', userSchema);
 
-export default User;
+module.exports = User;

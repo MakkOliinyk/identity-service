@@ -1,12 +1,12 @@
-import FastifyAuth from 'fastify-auth';
+const FastifyAuth = require('fastify-auth');
 
-import User from '../models/user';
+const User = require('../models/user');
 
-export default async (fastify) => {
+module.exports = async (fastify) => {
     fastify
         .decorate('_verify', async (request, reply) => {
             try {
-                const token = request.cookies.token;
+                const { token } = request.query;
                 if (!token) throw new Error('Bad request: no token was sent');
 
                 const user = await User.findByToken(token);
@@ -40,8 +40,7 @@ export default async (fastify) => {
                         await user.save();
                         const token = await user.generateToken();
 
-                        reply.cookie('token', token);
-                        reply.status(201).send({ user });
+                        reply.status(201).send({ user, token });
                     } catch (error) {
                         reply.status(400).send(error);
                     }
@@ -53,10 +52,7 @@ export default async (fastify) => {
                 logLevel: 'warn',
                 preHandler: fastify.auth([ fastify.verifyCredentials ]),
                 handler: async (req, reply) => {
-                    const token = await req.user.generateToken();
-
-                    reply.cookie('token', token);
-                    reply.send({ status: 'Success: logged in', user: req.user });
+                    reply.send({ status: 'Success: logged in', user: req.user, token: req.user.generateToken() });
                 }
             });
             fastify.route({
@@ -65,7 +61,7 @@ export default async (fastify) => {
                 logLevel: 'warn',
                 preHandler: fastify.auth([ fastify._verify ]),
                 handler: async (req, reply) => {
-                    reply.send({ status: 'Success: authenticated', user: req.user });
+                    reply.send({ status: 'Success: authenticated', user: req.user, token: req.user.getToken() });
                 }
             });
             fastify.route({
@@ -78,7 +74,6 @@ export default async (fastify) => {
                         req.user.tokens = req.user.tokens.filter((token) => token.token !== req.token);
                         const loggedOutUser = await req.user.save();
 
-                        reply.clearCookie('token');
                         reply.send({ status: 'You are logged out!', user: loggedOutUser });
                     } catch (e) {
                         res.status(500).send();

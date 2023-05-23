@@ -1,7 +1,6 @@
-import fp from 'fastify-plugin';
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
-import User from '../models/user';
+const User = require('../models/user');
 
 const models = { User };
 
@@ -26,4 +25,4 @@ const ConnectDB = async (fastify, options) => {
     }
 };
 
-export default fp(ConnectDB);
+module.exports = ConnectDB;
