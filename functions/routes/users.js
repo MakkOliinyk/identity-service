@@ -16,7 +16,7 @@ module.exports = async (fastify) => {
                 request.user = user;
                 request.token = authToken;
             } catch (error) {
-                reply.code(401).send(error);
+                reply.send(error);
             }
         })
         .decorate('verifyCredentials', async (request, reply) => {
@@ -73,7 +73,11 @@ module.exports = async (fastify) => {
                 logLevel: 'warn',
                 preHandler: fastify.auth([ fastify._verify ]),
                 handler: async (req, reply) => {
-                    reply.send({ user: req.user, token: fastify.Identity.generateToken() });
+                    try {
+                        reply.send({ user: req.user });
+                    } catch (error) {
+                        reply.send(error);
+                    }
                 }
             });
             fastify.route({
