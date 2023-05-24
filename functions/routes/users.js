@@ -61,7 +61,7 @@ module.exports = async (fastify) => {
                     try {
                         const token = await fastify.Identity.generateToken(req.user.id);
 
-                        reply.send({ status: 'Success: logged in', user: req.user, token });
+                        reply.send({ user: req.user, token });
                     } catch (error) {
                         reply.status(400).send(error);
                     }
@@ -73,7 +73,7 @@ module.exports = async (fastify) => {
                 logLevel: 'warn',
                 preHandler: fastify.auth([ fastify._verify ]),
                 handler: async (req, reply) => {
-                    reply.send({ status: 'Success: authenticated', user: req.user, token: req.user.getToken() });
+                    reply.send({ user: req.user, token: fastify.Identity.generateToken() });
                 }
             });
             fastify.route({
@@ -88,19 +88,10 @@ module.exports = async (fastify) => {
                             tokens: req.user.tokens
                         });
 
-                        reply.send({ status: 'You are logged out!', user: req.user });
+                        reply.send({ user: req.user });
                     } catch (error) {
                         reply.status(500).send();
                     }
-                }
-            });
-
-            fastify.route({
-                method: ['POST', 'HEAD'],
-                url: '/test',
-                logLevel: 'warn',
-                handler: async (req, reply) => {
-                    reply.send({ status: 'TEST' });
                 }
             });
         });
